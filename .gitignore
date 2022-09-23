@@ -4,3 +4,5 @@ temp*
 tmp*
 *tmp
 __pycache__
+test*
+*test
