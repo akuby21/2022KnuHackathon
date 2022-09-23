@@ -1,0 +1,6 @@
+venv
+temp*
+*temp
+tmp*
+*tmp
+__pycache__
