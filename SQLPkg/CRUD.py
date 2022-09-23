@@ -11,9 +11,10 @@ class Landmark_CRUD():
         self.connect.close()
         self.cursor.close()
     
-    def execute(self, query):
+    def execute(self, query, isFetch):
         self.cursor.execute(query)
-        pprint(self.cursor.fetchall())
+        if isFetch:
+            return self.cursor.fetchall()
         self.commit()
 
     def commit(self):
@@ -27,23 +28,28 @@ class Landmark_CRUD():
             value = "'" + "','".join(args[:-1]) + "', array" + args[-1]
 
             query = f'insert into {schema}.{table} (id, name, contents, homepage, tel, hour, address, coordinate) values({value}) on conflict(id) do nothing'
+
             try:
-                self.execute(query)
+                self.execute(query, False)
             except psycopg2.DatabaseError as error:
                 print(error)
+
     
     def read(self, schema, table, *columns):
         col = ', '.join(columns)
         query = f'select {col} from {schema}.{table}'
+
         try:
-            self.execute(query)
+            return self.execute(query, True)
         except psycopg2.DatabaseError as error:
             print(error)
 
-    def delete(self, schema, table, target_id):
+    def delete_byID(self, schema, table, target_id):
         query = f'delete from {schema}.{table} where id = {target_id}'
+        query = f'WITH to_delete AS ( select id from {schema}.{table} where id = {target_id} ) delete from {schema}.{table} using to_delete where {schema}.{table}.id = to_delete.id and not to_delete.id is null'
+        print(query)
         try:
-            self.execute(query)
+            self.execute(query, False)
         except psycopg2.DatabaseError as error:
             print(error)
     
