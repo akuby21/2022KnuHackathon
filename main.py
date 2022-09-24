@@ -111,12 +111,11 @@ def location(update: Update, context:CallbackContext):
     # 기존 갈 수 있는 장소 업데이트
     # json write
     with open(f"./User_Data/{id}.json",'w') as outfile:
-        json.dump({'id':id,'Landmark':new_can_go},outfile)
+        json.dump({'id':id,'Landmark':new_can_go,'Coordinate':[message.location.latitude,message.location.longitude]},outfile)
 
 def run_button(update: Update, context:CallbackContext):
     query = update.callback_query
     button_number = int(query.data)
-    
     id = query.message.chat_id
     message_id = query.message.message_id
 
@@ -129,9 +128,13 @@ def run_button(update: Update, context:CallbackContext):
         os.remove(f'./User_Data/{id}.json')
     else:
         landmark_name = []
+		with open(f"./User_Data/{id}.json",'r') as file:
+			dep = json.load(file)['Coordinate']
         for data in content:
             landmark_name.append(data[0]['text'])
-        context.bot.edit_message_text(chat_id=id, message_id=message_id, text=f"{landmark_name[button_number]}에 대한 네비게이션 정보에요\n")
+        dest = crud.execute(f"SELECT coordinate FROM {SCHEMA}.{TABLE} WHERE name = {landmark_name[button_number]}",True)
+		href = "https://google.co.kr/maps/dir/"+str(dep[0])+','+str(dep[1])+"/"+str(dest[0])+','+str(dest[1])
+        context.bot.edit_message_text(chat_id=id, message_id=message_id, text=f"{landmark_name[button_number]}에 대한 네비게이션 정보에요\n{href}")
 
     
 echo_handler = MessageHandler(Filters.text, handler)
