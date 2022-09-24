@@ -6,3 +6,7 @@ tmp*
 __pycache__
 test*
 *test
+*test*
+*.csv
+*.json
+User*
