@@ -85,7 +85,6 @@ def parse(item, i):
         # print(raw_image_data)
         filename = "images/%d.jpg" % i
         
-        print(filename + " create")
         f = open(filename, 'wb')
 
         for chunk in raw_image_data:
@@ -115,5 +114,5 @@ for (i, item) in enumerate(items):
 df = pd.DataFrame(row)
 
 df.to_csv("DataSet.csv", index=False, mode='w', encoding="utf-8-sig")
-print(".csv file create")
+print(".csv file, images create")
 print('Program shut down')
