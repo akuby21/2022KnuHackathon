@@ -17,7 +17,7 @@ from decimal import *
 
 gApi = ""
 token = ''
-limit_landmark_distance = 0.0005
+limit_landmark_distance = 0.0007
 can_go_landmark = []
 new_can_go = []
 bot = telegram.Bot(token)
@@ -79,21 +79,26 @@ def location(update: Update, context:CallbackContext):
     except:
         userLandData = []
     print(f'{id} : {new_can_go} ({len(new_can_go)}/{len(idDistance)})')
+
     # 새로 갈 수 있는 랜드마크와 기존에 갈 수 있는 랜드마크가 다르고
-    if set(new_can_go) != set(userLandData): # set 비교
+    if set(new_can_go) != set(userLandData) or not os.path.isfile(f'./User_Data/{id}.json'): # set 비교
         # 갈 곳 없으면 "NO WHERE TO GO", 갈 곳 있으면 새로운 장소
         if set(new_can_go) == set(): #비었으면
             print(f"{id} : NOWHERE TO GO")
-            bot.send_message(chat_id=id, text="NOWHERE TO GO")
+            bot.send_message(chat_id=id, text="현재 위치에서 가까운 랜드마크가 없어요")
         else:
             new_can_go_name_VIEW_NUM = []
-            for landmarks in new_can_go:
+            for landmark_id in new_can_go:
                 newText = ''
-                datas = crud.execute(f"SELECT name, contents, homepage, tel, hour, address FROM {SCHEMA}.{TABLE} WHERE id = {landmarks}",True)
+                datas = crud.execute(f"SELECT name, contents, homepage, tel, hour, address FROM {SCHEMA}.{TABLE} WHERE id = {landmark_id}",True)
                 new_can_go_name_VIEW_NUM.append(datas[0][0])
                 for data in datas:
                     newText = '\n\n'.join(data)
-                bot.send_message(chat_id=id, text=newText)
+
+                try:
+                    bot.sendPhoto(chat_id=id, photo=open(f'./images/{landmark_id}.jpg','rb'), caption=newText)
+                except:
+                    bot.send_message(chat_id=id, text=newText)
 
             task_buttons = [[]*(VIEW_NUM+1) for _ in range(VIEW_NUM+1)]
             for i, landmark_name in enumerate(new_can_go_name_VIEW_NUM):
@@ -102,7 +107,7 @@ def location(update: Update, context:CallbackContext):
             reply_markup = InlineKeyboardMarkup(task_buttons)
 
             bot.send_message(chat_id=id, text = "가고 싶은 장소 네비게이션 보기", reply_markup=reply_markup)
-    
+
     # 기존 갈 수 있는 장소 업데이트
     # json write
     with open(f"./User_Data/{id}.json",'w') as outfile:
