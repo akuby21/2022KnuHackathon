@@ -12,7 +12,7 @@ import time
 USERNUMBER = 10
 
 gApi = ""
-token = '5578593841:AAEtYyqRuyYbZEwNW7EIcpo5jc1qknnyQc0'
+token = ''
 limit_landmark_distance = 0.01
 can_go_landmark = [[0 for col in range(USERNUMBER)] for row in range(99)]
 new_can_go = [[0 for col in range(USERNUMBER)] for row in range(99)]
