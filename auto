@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true; do
+	rm ./User_Data/*.json
+	sleep 900;
+done
